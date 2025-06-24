@@ -10,6 +10,7 @@ import HomeScreen from './screens/HomeScreen';
 import PollDetailScreen from './screens/PollDetailScreen';
 import PollsScreen from './screens/PollsScreen';
 import PollSearchScreen from './screens/PollSearchScreen';
+import PollCreateScreen from './screens/PollCreateScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -68,6 +69,7 @@ export default function App() {
           }}
         />
         <Stack.Screen name="PollSearch" component={PollSearchScreen} />
+        <Stack.Screen name="PollCreate" component={PollCreateScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
