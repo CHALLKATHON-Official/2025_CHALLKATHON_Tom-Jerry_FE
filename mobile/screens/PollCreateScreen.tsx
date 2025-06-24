@@ -8,7 +8,7 @@ const PollCreateScreen = ({ navigation, route }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
-  const [options, setOptions] = useState(['', '']);
+  const [options, setOptions] = useState([{ content: '' }, { content: '' }]);
   const [loading, setLoading] = useState(false);
 
   // 기사에서 개설 시 기사 정보 표시
@@ -16,12 +16,12 @@ const PollCreateScreen = ({ navigation, route }) => {
 
   const handleOptionChange = (text, idx) => {
     const newOptions = [...options];
-    newOptions[idx] = text;
+    newOptions[idx].content = text;
     setOptions(newOptions);
   };
 
   const addOption = () => {
-    if (options.length < 5) setOptions([...options, '']);
+    if (options.length < 5) setOptions([...options, { content: '' }]);
   };
 
   const removeOption = (idx) => {
@@ -29,7 +29,7 @@ const PollCreateScreen = ({ navigation, route }) => {
   };
 
   const handleCreate = async () => {
-    if (!title.trim() || !options.every(opt => opt.trim()) || options.length < 2) {
+    if (!title.trim() || !options.every(opt => opt.content.trim()) || options.length < 2) {
       Alert.alert('질문과 2개 이상의 옵션을 입력해주세요.');
       return;
     }
@@ -91,7 +91,7 @@ const PollCreateScreen = ({ navigation, route }) => {
           <TextInput
             style={styles.optionInput}
             placeholder={`옵션 ${idx + 1}`}
-            value={opt}
+            value={opt.content}
             onChangeText={text => handleOptionChange(text, idx)}
           />
           {options.length > 2 && (

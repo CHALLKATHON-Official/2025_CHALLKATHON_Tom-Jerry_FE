@@ -8,8 +8,10 @@ import {
   Alert,
   RefreshControl,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { pollsAPI } from '../api/polls';
+import { fetchRealtimeNews } from '../api/news';
 
 interface Poll {
   poll_id: number;
@@ -29,6 +31,8 @@ const HomeScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
+  const [news, setNews] = useState([]);
+  const [loadingNews, setLoadingNews] = useState(true);
 
   const fetchPolls = async () => {
     try {
@@ -49,6 +53,13 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     fetchPolls().finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetchRealtimeNews()
+      .then(setNews)
+      .catch(() => alert('뉴스를 불러오지 못했습니다.'))
+      .finally(() => setLoadingNews(false));
   }, []);
 
   const onRefresh = async () => {
@@ -114,6 +125,29 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.emptyText}>진행 중인 여론조사가 없습니다.</Text>
             </View>
           }
+        />
+      )}
+      <Text style={{ fontSize: 20, fontWeight: 'bold', margin: 12 }}>실시간 뉴스</Text>
+      {loadingNews ? (
+        <ActivityIndicator size="large" />
+      ) : (
+        <FlatList
+          data={news}
+          keyExtractor={item => item.url}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => { /* 웹뷰 등으로 기사 열기 */ }}>
+              <View style={{ flexDirection: 'row', margin: 8 }}>
+                {item.urlToImage && (
+                  <Image source={{ uri: item.urlToImage }} style={{ width: 80, height: 80, borderRadius: 8 }} />
+                )}
+                <View style={{ flex: 1, marginLeft: 8 }}>
+                  <Text style={{ fontWeight: 'bold' }}>{item.title}</Text>
+                  <Text numberOfLines={2}>{item.description}</Text>
+                  <Text style={{ color: '#888', fontSize: 12 }}>{item.source?.name}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
         />
       )}
     </View>

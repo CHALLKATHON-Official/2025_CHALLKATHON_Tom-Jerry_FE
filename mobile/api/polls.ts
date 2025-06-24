@@ -20,7 +20,11 @@ export const pollsAPI = {
 
   // 여론조사 생성 (관리자용)
   createPoll: (pollData: any) => {
-    return apiClient.post('/polls', pollData);
+    let options = pollData.options;
+    if (Array.isArray(options) && typeof options[0] === 'string') {
+      options = options.map((opt: string) => ({ content: opt }));
+    }
+    return apiClient.post('/polls', { ...pollData, options });
   },
 
   // 여론조사 수정 (관리자용)
