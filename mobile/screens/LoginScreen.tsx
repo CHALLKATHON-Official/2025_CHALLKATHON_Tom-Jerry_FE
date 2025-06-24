@@ -2,11 +2,22 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authAPI } from '../api/auth';
+import { CommonActions } from '@react-navigation/native';
 
 const LoginScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // 전화번호 하이픈 자동 입력 함수
+  function formatPhoneNumber(value) {
+    const onlyNums = value.replace(/[^0-9]/g, '');
+    if (onlyNums.length < 4) return onlyNums;
+    if (onlyNums.length < 8) {
+      return onlyNums.slice(0, 3) + '-' + onlyNums.slice(3);
+    }
+    return onlyNums.slice(0, 3) + '-' + onlyNums.slice(3, 7) + '-' + onlyNums.slice(7, 11);
+  }
 
   const handleLogin = async () => {
     if (!phoneNumber || !password) {
@@ -16,12 +27,13 @@ const LoginScreen = ({ navigation }) => {
     setLoading(true);
     try {
       const res = await authAPI.login(phoneNumber, password);
-      // 토큰 저장 및 홈 이동
       await AsyncStorage.setItem('token', res.data.token);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'MainTabs' }],
-      });
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'MainTabs' }],
+        })
+      );
     } catch (err) {
       Alert.alert('로그인 실패', err.response?.data?.message || '서버 오류');
     } finally {
@@ -36,9 +48,10 @@ const LoginScreen = ({ navigation }) => {
         style={styles.input}
         placeholder="휴대폰 번호 (010-xxxx-xxxx)"
         value={phoneNumber}
-        onChangeText={setPhoneNumber}
+        onChangeText={text => setPhoneNumber(formatPhoneNumber(text))}
         keyboardType="phone-pad"
         autoCapitalize="none"
+        maxLength={13}
       />
       <TextInput
         style={styles.input}

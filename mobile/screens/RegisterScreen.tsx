@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import { authAPI } from '../api/auth';
+import { Picker } from '@react-native-picker/picker';
 
 const REGIONS = [
-  '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종',
-  '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주',
+  '서울특별시', '인천광역시', '대전광역시', '대구광역시', '울산광역시', '부산광역시', '광주광역시', '세종특별자치시',
+  '경기도', '강원도', '충청남도', '충청북도', '경상북도', '전라북도', '경상남도', '전라남도', '제주특별자치도',
 ];
 const CATEGORIES = ['정치', '경제', '사회', '생활/문화', 'IT/과학', '세계', '엔터', '스포츠'];
-const JOBS = ['전문직', '교직', '관리직', '사무직', '자영업', '판매직', '서비스직', '생산/노무직', '기능직', '농/축/광/수산업', '학생', '주부', '무직', '기타'];
+const JOBS = [
+  '전문직', '교직', '관리직', '사무직', '자영업', '판매직', '서비스직', '생산/노무직', '기능직',
+  '농/축/광/수산업', '학생', '주부', '무직', '기타',
+];
 const GENDERS = [
   { label: '남성', value: 'male' },
   { label: '여성', value: 'female' },
@@ -25,6 +29,26 @@ const RegisterScreen = ({ navigation }) => {
   const [gender, setGender] = useState('male');
   const [interestCategories, setInterestCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // 전화번호 하이픈 자동 입력 함수
+  function formatPhoneNumber(value) {
+    const onlyNums = value.replace(/[^0-9]/g, '');
+    if (onlyNums.length < 4) return onlyNums;
+    if (onlyNums.length < 8) {
+      return onlyNums.slice(0, 3) + '-' + onlyNums.slice(3);
+    }
+    return onlyNums.slice(0, 3) + '-' + onlyNums.slice(3, 7) + '-' + onlyNums.slice(7, 11);
+  }
+
+  // 생년월일 하이픈 자동 입력 함수
+  function formatBirthDate(value) {
+    const onlyNums = value.replace(/[^0-9]/g, '');
+    if (onlyNums.length < 5) return onlyNums;
+    if (onlyNums.length < 7) {
+      return onlyNums.slice(0, 4) + '-' + onlyNums.slice(4);
+    }
+    return onlyNums.slice(0, 4) + '-' + onlyNums.slice(4, 6) + '-' + onlyNums.slice(6, 8);
+  }
 
   const toggleCategory = (cat) => {
     if (interestCategories.includes(cat)) {
@@ -67,11 +91,40 @@ const RegisterScreen = ({ navigation }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.logo}>회원가입</Text>
-      <TextInput style={styles.input} placeholder="휴대폰 번호 (010-xxxx-xxxx)" value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="phone-pad" autoCapitalize="none" />
+      <TextInput
+        style={styles.input}
+        placeholder="휴대폰 번호 (010-xxxx-xxxx)"
+        value={phoneNumber}
+        onChangeText={text => setPhoneNumber(formatPhoneNumber(text))}
+        keyboardType="phone-pad"
+        autoCapitalize="none"
+        maxLength={13}
+      />
       <TextInput style={styles.input} placeholder="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
-      <TextInput style={styles.input} placeholder="성명" value={realName} onChangeText={setRealName} />
-      <TextInput style={styles.input} placeholder="별명" value={nickname} onChangeText={setNickname} />
-      <TextInput style={styles.input} placeholder="생년월일 (YYYY-MM-DD)" value={birthDate} onChangeText={setBirthDate} />
+      <TextInput
+        style={styles.input}
+        placeholder="성명"
+        value={realName}
+        onChangeText={setRealName}
+        keyboardType="default"
+        autoCapitalize="none"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="별명"
+        value={nickname}
+        onChangeText={setNickname}
+        keyboardType="default"
+        autoCapitalize="none"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="생년월일 (YYYY-MM-DD)"
+        value={birthDate}
+        onChangeText={text => setBirthDate(formatBirthDate(text))}
+        keyboardType="number-pad"
+        maxLength={10}
+      />
       <Text style={styles.label}>성별</Text>
       <View style={styles.row}>
         {GENDERS.map((g) => (
@@ -83,11 +136,27 @@ const RegisterScreen = ({ navigation }) => {
       </View>
       <Text style={styles.label}>거주지</Text>
       <View style={styles.pickerWrap}>
-        <TextInput style={styles.input} value={region} onChangeText={setRegion} />
+        <Picker
+          selectedValue={region}
+          onValueChange={setRegion}
+          style={styles.input}
+        >
+          {REGIONS.map(region => (
+            <Picker.Item label={region} value={region} key={region} />
+          ))}
+        </Picker>
       </View>
       <Text style={styles.label}>직업</Text>
       <View style={styles.pickerWrap}>
-        <TextInput style={styles.input} value={job} onChangeText={setJob} />
+        <Picker
+          selectedValue={job}
+          onValueChange={setJob}
+          style={styles.input}
+        >
+          {JOBS.map(job => (
+            <Picker.Item label={job} value={job} key={job} />
+          ))}
+        </Picker>
       </View>
       <Text style={styles.label}>관심 카테고리 (3개 선택)</Text>
       <View style={styles.rowWrap}>
