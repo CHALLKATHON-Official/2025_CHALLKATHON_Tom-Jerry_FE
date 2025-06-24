@@ -13,6 +13,7 @@ const PollDetailScreen = ({ route }) => {
   const [comments, setComments] = useState([]);
   const [replyTo, setReplyTo] = useState(null);
   const [replyText, setReplyText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     pollsAPI.getPoll(pollId.toString()).then(res => {
@@ -28,6 +29,7 @@ const PollDetailScreen = ({ route }) => {
   const handleVote = async () => {
     if (!selectedOption) return;
     try {
+      setSubmitting(true);
       await pollsAPI.votePoll(pollId.toString(), selectedOption);
       setVoted(true);
       // 최신 데이터 다시 불러오기
@@ -43,6 +45,8 @@ const PollDetailScreen = ({ route }) => {
       console.log('투표 후 totalVotes:', totalVotes);
     } catch (e) {
       alert('투표 실패');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -74,8 +78,10 @@ const PollDetailScreen = ({ route }) => {
     return <ActivityIndicator size="large" color="#3897f0" style={{ flex: 1, justifyContent: 'center' }} />;
   }
 
-  // 투표 결과 비율 계산
-  const totalVotes = results.reduce((sum, opt) => sum + Number(opt.response_count || 0), 0);
+  // 총 참여수(투표수) 계산 (항상 숫자 변환)
+  const totalVotes = poll.Options?.reduce((sum, option) => sum + Number(option.response_count || 0), 0) || 0;
+  // 이미 투표했는지 여부
+  const hasVoted = !!poll.user_response;
 
   return (
     <View style={styles.container}>
@@ -83,37 +89,43 @@ const PollDetailScreen = ({ route }) => {
       <Text style={styles.title}>{poll.title}</Text>
       <Text style={styles.desc}>{poll.description}</Text>
       {/* 옵션/투표 */}
-      {!voted ? (
+      {!hasVoted ? (
         <View style={styles.optionsWrap}>
-          {results.map(opt => (
+          {poll.Options?.map(opt => (
             <TouchableOpacity
               key={opt.option_id}
               style={[styles.optionBtn, selectedOption === opt.option_id && styles.optionBtnSelected]}
               onPress={() => setSelectedOption(opt.option_id)}
+              disabled={submitting}
             >
               <Text style={{ color: selectedOption === opt.option_id ? '#fff' : '#3897f0' }}>{opt.option_text}</Text>
             </TouchableOpacity>
           ))}
-          <TouchableOpacity style={styles.voteBtn} onPress={handleVote}>
-            <Text style={{ color: '#fff', fontWeight: 'bold' }}>투표하기</Text>
+          <TouchableOpacity style={styles.voteBtn} onPress={handleVote} disabled={submitting || !selectedOption}>
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>{submitting ? '투표 중...' : '투표하기'}</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <View style={styles.resultsWrap}>
-          {results.map(opt => {
-            const percent = totalVotes ? Math.round(Number(opt.response_count || 0) / totalVotes * 100) : 0;
+          {poll.Options?.map(opt => {
+            // 퍼센트 계산 (항상 숫자 변환)
+            const count = Number(opt.response_count) || 0;
+            const percent = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
             return (
               <View key={opt.option_id} style={styles.resultBarWrap}>
                 <Text style={styles.resultText}>{opt.option_text}</Text>
                 <View style={styles.resultBarBg}>
                   <View style={[styles.resultBar, { width: `${percent}%` }]} />
                 </View>
-                <Text style={styles.resultPercent}>{percent}%</Text>
+                {/* 퍼센트와 투표수 함께 출력 (항상 숫자 변환) */}
+                <Text style={styles.resultPercent}>{percent}% ({count}명)</Text>
               </View>
             );
           })}
         </View>
       )}
+      {/* 총 투표수(참여수) 표시 */}
+      <Text style={styles.totalVotesText}>총 투표수: {totalVotes}</Text>
       {/* 댓글/대댓글 */}
       <Text style={styles.sectionTitle}>토론</Text>
       <FlatList
@@ -162,13 +174,6 @@ const PollDetailScreen = ({ route }) => {
           <Text style={styles.commentSendBtn}>등록</Text>
         </TouchableOpacity>
       </View>
-      {/* 디버깅용: poll.Options와 totalVotes 화면 표시 */}
-      <Text style={{ fontSize: 12, color: '#888', marginTop: 8 }}>
-        poll.Options: {JSON.stringify(results)}
-      </Text>
-      <Text style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
-        총 투표수: {totalVotes}
-      </Text>
     </View>
   );
 };
@@ -199,6 +204,7 @@ const styles = StyleSheet.create({
   commentInputWrap: { flexDirection: 'row', alignItems: 'center', marginTop: 12 },
   commentInput: { flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 10, marginRight: 8 },
   commentSendBtn: { color: '#3897f0', fontWeight: 'bold' },
+  totalVotesText: { color: '#222', fontWeight: 'bold', marginBottom: 8, fontSize: 15, alignSelf: 'flex-end' },
 });
 
 export default PollDetailScreen; 
