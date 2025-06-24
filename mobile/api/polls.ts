@@ -35,5 +35,20 @@ export const pollsAPI = {
   // 여론조사 삭제 (관리자용)
   deletePoll: (pollId: string) => {
     return apiClient.delete(`/polls/${pollId}`);
+  },
+
+  // 투표(응답) 등록
+  votePoll: (pollId: string, optionId: number) => {
+    return pollsAPI.submitResponse(pollId, optionId);
+  },
+
+  // 댓글 등록
+  addComment: (pollId: string, comment: string) => {
+    return apiClient.post(`/polls/${pollId}/comments`, { text: comment });
+  },
+
+  // 댓글 목록 조회
+  getComments: (pollId: string) => {
+    return apiClient.get(`/polls/${pollId}/comments`);
   }
 }; 

@@ -20,27 +20,43 @@ const PollDetailScreen = ({ route }) => {
       setPoll(pollData);
       setResults(pollData.Options || []);
       setComments(pollData.comments || []);
+      setVoted(!!pollData.user_response);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [pollId]);
 
-  const handleVote = () => {
+  const handleVote = async () => {
     if (!selectedOption) return;
-    // 실제 투표 API 연동 필요
-    setVoted(true);
-    // 예시: 투표 후 결과 반영
-    setResults(results.map(opt =>
-      opt.option_id === selectedOption ? { ...opt, response_count: (opt.response_count || 0) + 1 } : opt
-    ));
+    try {
+      await pollsAPI.votePoll(pollId.toString(), selectedOption);
+      setVoted(true);
+      // 최신 데이터 다시 불러오기
+      const res = await pollsAPI.getPoll(pollId.toString());
+      const pollData = res.data;
+      setPoll(pollData);
+      setResults(pollData.Options || []);
+      setComments(pollData.comments || []);
+      setVoted(!!pollData.user_response);
+      // 디버깅용 로그 추가
+      console.log('투표 후 poll.Options:', pollData.Options);
+      const totalVotes = (pollData.Options || []).reduce((sum, opt) => sum + Number(opt.response_count || 0), 0);
+      console.log('투표 후 totalVotes:', totalVotes);
+    } catch (e) {
+      alert('투표 실패');
+    }
   };
 
-  const handleComment = () => {
+  const handleComment = async () => {
     if (!comment.trim()) return;
-    setComments([
-      ...comments,
-      { id: Date.now(), text: comment, replies: [] }
-    ]);
-    setComment('');
+    try {
+      await pollsAPI.addComment(pollId.toString(), comment);
+      setComment('');
+      // 최신 데이터 다시 불러오기
+      const res = await pollsAPI.getPoll(pollId.toString());
+      setComments(res.data.comments || []);
+    } catch (e) {
+      alert('댓글 등록 실패');
+    }
   };
 
   const handleReply = (commentId) => {
@@ -59,7 +75,7 @@ const PollDetailScreen = ({ route }) => {
   }
 
   // 투표 결과 비율 계산
-  const totalVotes = results.reduce((sum, opt) => sum + (opt.response_count || 0), 0);
+  const totalVotes = results.reduce((sum, opt) => sum + Number(opt.response_count || 0), 0);
 
   return (
     <View style={styles.container}>
@@ -85,7 +101,7 @@ const PollDetailScreen = ({ route }) => {
       ) : (
         <View style={styles.resultsWrap}>
           {results.map(opt => {
-            const percent = totalVotes ? Math.round((opt.response_count || 0) / totalVotes * 100) : 0;
+            const percent = totalVotes ? Math.round(Number(opt.response_count || 0) / totalVotes * 100) : 0;
             return (
               <View key={opt.option_id} style={styles.resultBarWrap}>
                 <Text style={styles.resultText}>{opt.option_text}</Text>
@@ -146,6 +162,13 @@ const PollDetailScreen = ({ route }) => {
           <Text style={styles.commentSendBtn}>등록</Text>
         </TouchableOpacity>
       </View>
+      {/* 디버깅용: poll.Options와 totalVotes 화면 표시 */}
+      <Text style={{ fontSize: 12, color: '#888', marginTop: 8 }}>
+        poll.Options: {JSON.stringify(results)}
+      </Text>
+      <Text style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
+        총 투표수: {totalVotes}
+      </Text>
     </View>
   );
 };
