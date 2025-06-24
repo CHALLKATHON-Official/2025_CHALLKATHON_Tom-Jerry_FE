@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // API 기본 설정
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'http://180.64.227.60:3001/api';
 
 // axios 인스턴스 생성
 const apiClient = axios.create({

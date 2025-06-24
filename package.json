@@ -20,5 +20,11 @@
   "devDependencies": {
     "@types/react": "~19.0.10",
     "typescript": "~5.8.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "start:clean": "expo start -c",
+    "kill-metro": "for /f \"tokens=5\" %a in ('netstat -aon ^| findstr :8081') do taskkill /F /PID %a",
+    "restart-metro": "npm run kill-metro && npm run start:clean"
   }
 }
