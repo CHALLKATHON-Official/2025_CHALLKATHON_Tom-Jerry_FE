@@ -11,6 +11,7 @@ import PollDetailScreen from './screens/PollDetailScreen';
 import PollsScreen from './screens/PollsScreen';
 import PollSearchScreen from './screens/PollSearchScreen';
 import PollCreateScreen from './screens/PollCreateScreen';
+import MyScreen from './screens/MyScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -43,7 +44,7 @@ function MainTabs() {
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: '홈' }} />
       <Tab.Screen name="Polls" component={PollsScreen} options={{ title: '여론조사' }} />
       <Tab.Screen name="News" component={HomeScreen} options={{ title: '뉴스' }} />
-      <Tab.Screen name="Profile" component={HomeScreen} options={{ title: '프로필' }} />
+      <Tab.Screen name="Profile" component={MyScreen} options={{ title: '프로필' }} />
     </Tab.Navigator>
   );
 }

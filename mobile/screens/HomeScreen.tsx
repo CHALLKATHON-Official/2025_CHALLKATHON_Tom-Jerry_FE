@@ -37,6 +37,7 @@ const HomeScreen = ({ navigation }) => {
   const fetchPolls = async () => {
     try {
       const response = await pollsAPI.getPolls();
+      console.log('pollsAPI.getPolls 응답:', response.data.polls);
       if (response.data.polls) {
         setPolls(response.data.polls);
       } else if (Array.isArray(response.data)) {
@@ -69,7 +70,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderPollItem = ({ item }: { item: Poll }) => {
-    const totalVotes = item.Options?.reduce((sum, option) => sum + (option.response_count || 0), 0) || 0;
+    const totalVotes = item.Options?.reduce((sum, option) => sum + Number(option.response_count || 0), 0) || 0;
 
     return (
       <TouchableOpacity
