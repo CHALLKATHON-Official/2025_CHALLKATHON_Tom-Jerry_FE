@@ -8,6 +8,8 @@ import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
 import PollDetailScreen from './screens/PollDetailScreen';
+import PollsScreen from './screens/PollsScreen';
+import PollSearchScreen from './screens/PollSearchScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -38,7 +40,7 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: '홈' }} />
-      <Tab.Screen name="Polls" component={HomeScreen} options={{ title: '여론조사' }} />
+      <Tab.Screen name="Polls" component={PollsScreen} options={{ title: '여론조사' }} />
       <Tab.Screen name="News" component={HomeScreen} options={{ title: '뉴스' }} />
       <Tab.Screen name="Profile" component={HomeScreen} options={{ title: '프로필' }} />
     </Tab.Navigator>
@@ -65,6 +67,7 @@ export default function App() {
             headerShown: false,
           }}
         />
+        <Stack.Screen name="PollSearch" component={PollSearchScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

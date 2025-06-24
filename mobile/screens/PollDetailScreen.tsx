@@ -1,357 +1,181 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, ActivityIndicator } from 'react-native';
 import { pollsAPI } from '../api/polls';
 
-interface PollOption {
-  option_id: number;
-  option_text: string;
-  response_count: number;
-}
-
-interface Poll {
-  poll_id: number;
-  title: string;
-  description: string;
-  category: string;
-  expires_at: string;
-  Options: PollOption[];
-  user_response?: {
-    option_id: number;
-    option_text: string;
-  };
-}
-
-const PollDetailScreen = ({ route, navigation }) => {
+const PollDetailScreen = ({ route }) => {
   const { pollId } = route.params;
-  const [poll, setPoll] = useState<Poll | null>(null);
+  const [poll, setPoll] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [voted, setVoted] = useState(false);
+  const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [hasVoted, setHasVoted] = useState(false);
+  const [comment, setComment] = useState('');
+  const [comments, setComments] = useState([]);
+  const [replyTo, setReplyTo] = useState(null);
+  const [replyText, setReplyText] = useState('');
 
   useEffect(() => {
-    fetchPoll();
+    pollsAPI.getPoll(pollId.toString()).then(res => {
+      const pollData = res.data;
+      setPoll(pollData);
+      setResults(pollData.Options || []);
+      setComments(pollData.comments || []);
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, [pollId]);
 
-  const fetchPoll = async () => {
-    try {
-      const response = await pollsAPI.getPoll(pollId);
-      setPoll(response.data);
-      
-      // 이미 투표했는지 확인
-      if (response.data.user_response) {
-        setHasVoted(true);
-        setSelectedOption(response.data.user_response.option_id);
-      }
-    } catch (error) {
-      Alert.alert('오류', '여론조사를 불러올 수 없습니다.');
-      navigation.goBack();
-    } finally {
-      setLoading(false);
-    }
+  const handleVote = () => {
+    if (!selectedOption) return;
+    // 실제 투표 API 연동 필요
+    setVoted(true);
+    // 예시: 투표 후 결과 반영
+    setResults(results.map(opt =>
+      opt.option_id === selectedOption ? { ...opt, response_count: (opt.response_count || 0) + 1 } : opt
+    ));
   };
 
-  const handleVote = async () => {
-    if (!selectedOption) {
-      Alert.alert('알림', '옵션을 선택해주세요.');
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      await pollsAPI.submitResponse(pollId.toString(), selectedOption);
-      setHasVoted(true);
-      Alert.alert('성공', '투표가 완료되었습니다!');
-      // 투표 후 데이터 다시 불러오기
-      await fetchPoll();
-    } catch (error) {
-      Alert.alert('오류', error.response?.data?.message || '투표에 실패했습니다.');
-    } finally {
-      setSubmitting(false);
-    }
+  const handleComment = () => {
+    if (!comment.trim()) return;
+    setComments([
+      ...comments,
+      { id: Date.now(), text: comment, replies: [] }
+    ]);
+    setComment('');
   };
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3897f0" />
-        <Text style={styles.loadingText}>여론조사를 불러오는 중...</Text>
-      </View>
-    );
+  const handleReply = (commentId) => {
+    if (!replyText.trim()) return;
+    setComments(comments.map(c =>
+      c.id === commentId
+        ? { ...c, replies: [...(c.replies || []), { id: Date.now(), text: replyText }] }
+        : c
+    ));
+    setReplyTo(null);
+    setReplyText('');
+  };
+
+  if (loading || !poll) {
+    return <ActivityIndicator size="large" color="#3897f0" style={{ flex: 1, justifyContent: 'center' }} />;
   }
 
-  if (!poll) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>여론조사를 찾을 수 없습니다.</Text>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>뒤로 가기</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  const totalVotes = poll.Options?.reduce((sum, option) => sum + (option.response_count || 0), 0) || 0;
+  // 투표 결과 비율 계산
+  const totalVotes = results.reduce((sum, opt) => sum + (opt.response_count || 0), 0);
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>← 뒤로</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>여론조사</Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      <View style={styles.content}>
-        <Text style={styles.title}>{poll.title}</Text>
-        <Text style={styles.category}>{poll.category}</Text>
-        <Text style={styles.description}>{poll.description}</Text>
-        
-        <View style={styles.infoRow}>
-          <Text style={styles.infoText}>
-            마감일: {poll.expires_at ? poll.expires_at.split('T')[0] : '미정'}
-          </Text>
-          <Text style={styles.infoText}>총 {totalVotes}명 참여</Text>
+    <View style={styles.container}>
+      {/* 질문 */}
+      <Text style={styles.title}>{poll.title}</Text>
+      <Text style={styles.desc}>{poll.description}</Text>
+      {/* 옵션/투표 */}
+      {!voted ? (
+        <View style={styles.optionsWrap}>
+          {results.map(opt => (
+            <TouchableOpacity
+              key={opt.option_id}
+              style={[styles.optionBtn, selectedOption === opt.option_id && styles.optionBtnSelected]}
+              onPress={() => setSelectedOption(opt.option_id)}
+            >
+              <Text style={{ color: selectedOption === opt.option_id ? '#fff' : '#3897f0' }}>{opt.option_text}</Text>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity style={styles.voteBtn} onPress={handleVote}>
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>투표하기</Text>
+          </TouchableOpacity>
         </View>
-
-        <View style={styles.optionsContainer}>
-          <Text style={styles.optionsTitle}>투표 옵션</Text>
-          {poll.Options?.map((option) => {
-            const percentage = totalVotes > 0 ? Math.round((option.response_count / totalVotes) * 100) : 0;
-            const isSelected = selectedOption === option.option_id;
-            const isVoted = hasVoted && isSelected;
-
+      ) : (
+        <View style={styles.resultsWrap}>
+          {results.map(opt => {
+            const percent = totalVotes ? Math.round((opt.response_count || 0) / totalVotes * 100) : 0;
             return (
-              <TouchableOpacity
-                key={option.option_id}
-                style={[
-                  styles.optionCard,
-                  isSelected && styles.optionCardSelected,
-                  isVoted && styles.optionCardVoted,
-                ]}
-                onPress={() => !hasVoted && setSelectedOption(option.option_id)}
-                disabled={hasVoted}
-              >
-                <View style={styles.optionHeader}>
-                  <Text style={styles.optionText}>{option.option_text}</Text>
-                  {hasVoted && (
-                    <Text style={styles.optionPercentage}>
-                      {percentage}% ({option.response_count}표)
-                    </Text>
-                  )}
+              <View key={opt.option_id} style={styles.resultBarWrap}>
+                <Text style={styles.resultText}>{opt.option_text}</Text>
+                <View style={styles.resultBarBg}>
+                  <View style={[styles.resultBar, { width: `${percent}%` }]} />
                 </View>
-                
-                {hasVoted && (
-                  <View style={styles.progressBar}>
-                    <View
-                      style={[
-                        styles.progressFill,
-                        { width: `${percentage}%` },
-                      ]}
-                    />
-                  </View>
-                )}
-              </TouchableOpacity>
+                <Text style={styles.resultPercent}>{percent}%</Text>
+              </View>
             );
           })}
         </View>
-
-        {!hasVoted && (
-          <TouchableOpacity
-            style={[
-              styles.voteButton,
-              !selectedOption && styles.voteButtonDisabled,
-            ]}
-            onPress={handleVote}
-            disabled={submitting || !selectedOption}
-          >
-            <Text style={styles.voteButtonText}>
-              {submitting ? '투표 중...' : '투표하기'}
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {hasVoted && (
-          <View style={styles.votedMessage}>
-            <Text style={styles.votedMessageText}>투표가 완료되었습니다! 감사합니다.</Text>
+      )}
+      {/* 댓글/대댓글 */}
+      <Text style={styles.sectionTitle}>토론</Text>
+      <FlatList
+        data={comments}
+        keyExtractor={item => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.commentWrap}>
+            <Text style={styles.commentText}>{item.text}</Text>
+            <TouchableOpacity onPress={() => setReplyTo(item.id)}>
+              <Text style={styles.replyBtn}>답글</Text>
+            </TouchableOpacity>
+            {/* 대댓글 */}
+            {item.replies && item.replies.map(reply => (
+              <View key={reply.id} style={styles.replyWrap}>
+                <Text style={styles.replyText}>{reply.text}</Text>
+              </View>
+            ))}
+            {/* 대댓글 입력 */}
+            {replyTo === item.id && (
+              <View style={styles.replyInputWrap}>
+                <TextInput
+                  style={styles.replyInput}
+                  value={replyText}
+                  onChangeText={setReplyText}
+                  placeholder="답글 입력"
+                />
+                <TouchableOpacity onPress={() => handleReply(item.id)}>
+                  <Text style={styles.replySendBtn}>등록</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         )}
+        ListEmptyComponent={<Text style={{ textAlign: 'center', color: '#aaa', margin: 24 }}>아직 댓글이 없습니다.</Text>}
+        style={{ marginTop: 16 }}
+      />
+      {/* 댓글 입력 */}
+      <View style={styles.commentInputWrap}>
+        <TextInput
+          style={styles.commentInput}
+          value={comment}
+          onChangeText={setComment}
+          placeholder="댓글을 입력하세요"
+        />
+        <TouchableOpacity onPress={handleComment}>
+          <Text style={styles.commentSendBtn}>등록</Text>
+        </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#666',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#ff4757',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  backButton: {
-    padding: 8,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#3897f0',
-    fontWeight: '500',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  placeholder: {
-    width: 50,
-  },
-  content: {
-    padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  category: {
-    fontSize: 16,
-    color: '#3897f0',
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  description: {
-    fontSize: 16,
-    color: '#666',
-    lineHeight: 24,
-    marginBottom: 16,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#999',
-  },
-  optionsContainer: {
-    marginBottom: 24,
-  },
-  optionsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 16,
-  },
-  optionCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  optionCardSelected: {
-    borderColor: '#3897f0',
-    borderWidth: 2,
-  },
-  optionCardVoted: {
-    backgroundColor: '#e3f0fc',
-    borderColor: '#3897f0',
-  },
-  optionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  optionText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-    flex: 1,
-  },
-  optionPercentage: {
-    fontSize: 14,
-    color: '#3897f0',
-    fontWeight: '600',
-  },
-  progressBar: {
-    height: 8,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#3897f0',
-  },
-  voteButton: {
-    backgroundColor: '#3897f0',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  voteButtonDisabled: {
-    backgroundColor: '#ccc',
-  },
-  voteButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  votedMessage: {
-    backgroundColor: '#e3f0fc',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  votedMessageText: {
-    color: '#3897f0',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  container: { flex: 1, backgroundColor: '#fff', padding: 16 },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 8 },
+  desc: { color: '#555', marginBottom: 16 },
+  optionsWrap: { marginBottom: 24 },
+  optionBtn: { borderWidth: 1, borderColor: '#3897f0', borderRadius: 16, padding: 12, marginBottom: 8, alignItems: 'center', backgroundColor: '#fff' },
+  optionBtnSelected: { backgroundColor: '#3897f0' },
+  voteBtn: { backgroundColor: '#3897f0', borderRadius: 16, padding: 14, alignItems: 'center', marginTop: 8 },
+  resultsWrap: { marginBottom: 24 },
+  resultBarWrap: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  resultText: { flex: 1 },
+  resultBarBg: { flex: 3, height: 16, backgroundColor: '#eaf4ff', borderRadius: 8, marginHorizontal: 8 },
+  resultBar: { height: 16, backgroundColor: '#3897f0', borderRadius: 8 },
+  resultPercent: { width: 40, textAlign: 'right' },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 16, marginBottom: 8 },
+  commentWrap: { backgroundColor: '#f7faff', borderRadius: 8, padding: 12, marginBottom: 8 },
+  commentText: { fontSize: 15 },
+  replyBtn: { color: '#3897f0', marginTop: 4 },
+  replyWrap: { backgroundColor: '#eaf4ff', borderRadius: 8, padding: 8, marginTop: 6, marginLeft: 16 },
+  replyText: { color: '#333' },
+  replyInputWrap: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
+  replyInput: { flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 6, marginRight: 8 },
+  replySendBtn: { color: '#3897f0', fontWeight: 'bold' },
+  commentInputWrap: { flexDirection: 'row', alignItems: 'center', marginTop: 12 },
+  commentInput: { flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 10, marginRight: 8 },
+  commentSendBtn: { color: '#3897f0', fontWeight: 'bold' },
 });
 
 export default PollDetailScreen; 
