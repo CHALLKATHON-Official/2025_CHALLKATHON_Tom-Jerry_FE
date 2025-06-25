@@ -14,6 +14,8 @@ import PollCreateScreen from './screens/PollCreateScreen';
 import MyScreen from './screens/MyScreen';
 import MyParticipatedPollsScreen from './screens/MyParticipatedPollsScreen';
 import MyPollsScreen from './screens/MyPollsScreen';
+import NewsHomeScreen from './screens/NewsHomeScreen';
+import NewsDetailScreen from './screens/NewsDetailScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -46,7 +48,7 @@ function MainTabs() {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: '홈' }} />
       <Tab.Screen name="Polls" component={PollsScreen} options={{ title: '여론조사' }} />
-      <Tab.Screen name="News" component={HomeScreen} options={{ title: '뉴스' }} />
+      <Tab.Screen name="News" component={NewsHomeScreen} options={{ title: '뉴스' }} />
       <Tab.Screen name="Profile" component={MyScreen} options={{ title: '프로필' }} />
     </Tab.Navigator>
   );
@@ -77,6 +79,7 @@ export default function App() {
         <Stack.Screen name="PollCreate" component={PollCreateScreen} />
         <Stack.Screen name="MyParticipatedPolls" component={MyParticipatedPollsScreen} />
         <Stack.Screen name="MyPolls" component={MyPollsScreen} />
+        <Stack.Screen name="NewsDetail" component={NewsDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

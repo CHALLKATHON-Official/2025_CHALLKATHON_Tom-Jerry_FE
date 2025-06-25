@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, ActivityIndicator, Image } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, ActivityIndicator, Image } from 'react-native';
 import { pollsAPI } from '../api/polls';
 
 const PollDetailScreen = ({ route }) => {
@@ -85,7 +85,7 @@ const PollDetailScreen = ({ route }) => {
   const hasVoted = !!poll.user_response;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* 질문 */}
       <Text style={styles.title}>{poll.title}</Text>
       <Text style={styles.desc}>{poll.description}</Text>
@@ -182,18 +182,18 @@ const PollDetailScreen = ({ route }) => {
           <Text style={styles.commentSendBtn}>등록</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 16 },
+  container: { flex: 1, backgroundColor: '#fff', padding: 16, paddingHorizontal: 16 },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 8 },
   desc: { color: '#555', marginBottom: 16 },
   optionsWrap: { marginBottom: 24 },
-  optionBtn: { borderWidth: 1, borderColor: '#3897f0', borderRadius: 16, padding: 12, marginBottom: 8, alignItems: 'center', backgroundColor: '#fff' },
+  optionBtn: { borderWidth: 1, borderColor: '#3897f0', borderRadius: 16, padding: 12, paddingHorizontal: 24, marginBottom: 8, alignItems: 'center', backgroundColor: '#fff' },
   optionBtnSelected: { backgroundColor: '#3897f0' },
-  voteBtn: { backgroundColor: '#3897f0', borderRadius: 16, padding: 14, alignItems: 'center', marginTop: 8 },
+  voteBtn: { backgroundColor: '#3897f0', borderRadius: 16, padding: 14, paddingHorizontal: 24, alignItems: 'center', marginTop: 8 },
   resultsWrap: { marginBottom: 24 },
   resultBarWrap: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   resultText: { flex: 1 },

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
+import { SafeAreaView, ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { authAPI } from '../api/auth';
 import { Picker } from '@react-native-picker/picker';
 
@@ -89,99 +89,101 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.logo}>회원가입</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="휴대폰 번호 (010-xxxx-xxxx)"
-        value={phoneNumber}
-        onChangeText={text => setPhoneNumber(formatPhoneNumber(text))}
-        keyboardType="phone-pad"
-        autoCapitalize="none"
-        maxLength={13}
-      />
-      <TextInput style={styles.input} placeholder="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
-      <TextInput
-        style={styles.input}
-        placeholder="성명"
-        value={realName}
-        onChangeText={setRealName}
-        keyboardType="default"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="별명"
-        value={nickname}
-        onChangeText={setNickname}
-        keyboardType="default"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="생년월일 (YYYY-MM-DD)"
-        value={birthDate}
-        onChangeText={text => setBirthDate(formatBirthDate(text))}
-        keyboardType="number-pad"
-        maxLength={10}
-      />
-      <Text style={styles.label}>성별</Text>
-      <View style={styles.row}>
-        {GENDERS.map((g) => (
-          <TouchableOpacity key={g.value} style={styles.radioWrap} onPress={() => setGender(g.value)}>
-            <View style={[styles.radio, gender === g.value && styles.radioSelected]} />
-            <Text>{g.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <Text style={styles.label}>거주지</Text>
-      <View style={styles.pickerWrap}>
-        <Picker
-          selectedValue={region}
-          onValueChange={setRegion}
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.logo}>회원가입</Text>
+        <TextInput
           style={styles.input}
-        >
-          {REGIONS.map(region => (
-            <Picker.Item label={region} value={region} key={region} />
-          ))}
-        </Picker>
-      </View>
-      <Text style={styles.label}>직업</Text>
-      <View style={styles.pickerWrap}>
-        <Picker
-          selectedValue={job}
-          onValueChange={setJob}
+          placeholder="휴대폰 번호 (010-xxxx-xxxx)"
+          value={phoneNumber}
+          onChangeText={text => setPhoneNumber(formatPhoneNumber(text))}
+          keyboardType="phone-pad"
+          autoCapitalize="none"
+          maxLength={13}
+        />
+        <TextInput style={styles.input} placeholder="비밀번호" value={password} onChangeText={setPassword} secureTextEntry />
+        <TextInput
           style={styles.input}
-        >
-          {JOBS.map(job => (
-            <Picker.Item label={job} value={job} key={job} />
+          placeholder="성명"
+          value={realName}
+          onChangeText={setRealName}
+          keyboardType="default"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="별명"
+          value={nickname}
+          onChangeText={setNickname}
+          keyboardType="default"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="생년월일 (YYYY-MM-DD)"
+          value={birthDate}
+          onChangeText={text => setBirthDate(formatBirthDate(text))}
+          keyboardType="number-pad"
+          maxLength={10}
+        />
+        <Text style={styles.label}>성별</Text>
+        <View style={styles.row}>
+          {GENDERS.map((g) => (
+            <TouchableOpacity key={g.value} style={styles.radioWrap} onPress={() => setGender(g.value)}>
+              <View style={[styles.radio, gender === g.value && styles.radioSelected]} />
+              <Text>{g.label}</Text>
+            </TouchableOpacity>
           ))}
-        </Picker>
-      </View>
-      <Text style={styles.label}>관심 카테고리 (3개 선택)</Text>
-      <View style={styles.rowWrap}>
-        {CATEGORIES.map((cat) => (
-          <TouchableOpacity
-            key={cat}
-            style={[styles.catBox, interestCategories.includes(cat) && styles.catBoxSelected]}
-            onPress={() => toggleCategory(cat)}
+        </View>
+        <Text style={styles.label}>거주지</Text>
+        <View style={styles.pickerWrap}>
+          <Picker
+            selectedValue={region}
+            onValueChange={setRegion}
+            style={styles.input}
           >
-            <Text style={{ color: interestCategories.includes(cat) ? '#fff' : '#333' }}>{cat}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
-        <Text style={styles.buttonText}>{loading ? '가입 중...' : '가입'}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.replace('Login')} style={styles.link}>
-        <Text style={styles.linkText}>이미 계정이 있으신가요? 로그인</Text>
-      </TouchableOpacity>
-    </ScrollView>
+            {REGIONS.map(region => (
+              <Picker.Item label={region} value={region} key={region} />
+            ))}
+          </Picker>
+        </View>
+        <Text style={styles.label}>직업</Text>
+        <View style={styles.pickerWrap}>
+          <Picker
+            selectedValue={job}
+            onValueChange={setJob}
+            style={styles.input}
+          >
+            {JOBS.map(job => (
+              <Picker.Item label={job} value={job} key={job} />
+            ))}
+          </Picker>
+        </View>
+        <Text style={styles.label}>관심 카테고리 (3개 선택)</Text>
+        <View style={styles.rowWrap}>
+          {CATEGORIES.map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              style={[styles.catBox, interestCategories.includes(cat) && styles.catBoxSelected]}
+              onPress={() => toggleCategory(cat)}
+            >
+              <Text style={{ color: interestCategories.includes(cat) ? '#fff' : '#333' }}>{cat}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
+          <Text style={styles.buttonText}>{loading ? '가입 중...' : '가입'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.replace('Login')} style={styles.link}>
+          <Text style={styles.linkText}>이미 계정이 있으신가요? 로그인</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', paddingVertical: 32 },
+  container: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', paddingVertical: 32, paddingHorizontal: 32 },
   logo: { fontSize: 32, fontWeight: 'bold', marginBottom: 32 },
   input: { width: '80%', height: 48, borderColor: '#ccc', borderWidth: 1, borderRadius: 8, marginBottom: 16, paddingHorizontal: 12 },
   label: { alignSelf: 'flex-start', marginLeft: '10%', fontWeight: 'bold', marginTop: 8 },

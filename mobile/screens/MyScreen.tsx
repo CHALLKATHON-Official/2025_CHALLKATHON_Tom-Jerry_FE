@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { pollsAPI } from '../api/polls';
@@ -55,7 +55,7 @@ const MyScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* 상단 프로필 정보 */}
       <View style={styles.profileBox}>
         <TouchableOpacity onPress={pickImage}>
@@ -85,7 +85,7 @@ const MyScreen = ({ navigation }) => {
         <Text style={styles.menuTitle}>내가 개설한 여론조사</Text>
         <Text style={styles.menuDesc}>내가 직접 개설한 여론조사만 모아볼 수 있습니다.</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
