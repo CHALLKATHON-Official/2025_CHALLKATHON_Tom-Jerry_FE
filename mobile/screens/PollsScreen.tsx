@@ -40,8 +40,9 @@ const PollsScreen = ({ navigation }) => {
     return <ActivityIndicator size="large" color="#3897f0" style={{ flex: 1, justifyContent: 'center' }} />;
   }
 
-  return (
-    <ScrollView style={styles.container}>
+  // FlatList의 헤더에 고정 UI(검색, 인기, 카테고리, 개설 버튼 등) 배치
+  const renderHeader = () => (
+    <>
       {/* 검색 버튼/입력창 */}
       <TouchableOpacity style={styles.searchBar} onPress={() => navigation.navigate('PollSearch')}>
         <Text style={styles.searchText}>여론조사 검색하기</Text>
@@ -80,24 +81,26 @@ const PollsScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.createPollBox} onPress={() => navigation.navigate('PollCreate')}>
         <Text style={styles.createPollText}>여론조사를 개설하고 싶으신가요?</Text>
       </TouchableOpacity>
+    </>
+  );
 
-      {/* 여론조사 목록 */}
-      <FlatList
-        data={filteredPolls}
-        keyExtractor={item => item.poll_id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.pollItem}
-            onPress={() => navigation.navigate('PollDetail', { pollId: item.poll_id })}
-          >
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.desc}>{item.description}</Text>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={<Text style={{ textAlign: 'center', margin: 32, color: '#aaa' }}>여론조사가 없습니다.</Text>}
-        style={{ marginTop: 16 }}
-      />
-    </ScrollView>
+  return (
+    <FlatList
+      data={filteredPolls}
+      keyExtractor={item => item.poll_id.toString()}
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          style={styles.pollItem}
+          onPress={() => navigation.navigate('PollDetail', { pollId: item.poll_id })}
+        >
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.desc}>{item.description}</Text>
+        </TouchableOpacity>
+      )}
+      ListHeaderComponent={renderHeader}
+      ListEmptyComponent={<Text style={{ textAlign: 'center', margin: 32, color: '#aaa' }}>여론조사가 없습니다.</Text>}
+      contentContainerStyle={{ paddingBottom: 32 }}
+    />
   );
 };
 
