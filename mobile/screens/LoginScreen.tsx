@@ -28,6 +28,13 @@ const LoginScreen = ({ navigation }) => {
     try {
       const res = await authAPI.login(phoneNumber, password);
       await AsyncStorage.setItem('token', res.data.token);
+
+      // 로그인 후 별도 API로 사용자 정보 요청 (토큰 인증 기반)
+      const verifyRes = await authAPI.verifyToken();
+      if (verifyRes.data && verifyRes.data.nickname) {
+        await AsyncStorage.setItem('userInfo', JSON.stringify({ nickname: verifyRes.data.nickname }));
+      }
+
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
