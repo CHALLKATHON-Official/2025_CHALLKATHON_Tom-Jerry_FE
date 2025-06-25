@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView, TextInput } from 'react-native';
+import { SafeAreaView, View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView, TextInput } from 'react-native';
 import { pollsAPI } from '../api/polls';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -85,31 +85,33 @@ const PollsScreen = ({ navigation }) => {
   );
 
   return (
-    <FlatList
-      data={filteredPolls}
-      keyExtractor={item => item.poll_id.toString()}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          style={styles.pollItem}
-          onPress={() => navigation.navigate('PollDetail', { pollId: item.poll_id })}
-        >
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.desc}>{item.description}</Text>
-        </TouchableOpacity>
-      )}
-      ListHeaderComponent={renderHeader}
-      ListEmptyComponent={<Text style={{ textAlign: 'center', margin: 32, color: '#aaa' }}>여론조사가 없습니다.</Text>}
-      contentContainerStyle={{ paddingBottom: 32 }}
-    />
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={filteredPolls}
+        keyExtractor={item => item.poll_id.toString()}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.pollItem}
+            onPress={() => navigation.navigate('PollDetail', { pollId: item.poll_id })}
+          >
+            <Text style={styles.title}>{item.title}</Text>
+            <Text style={styles.desc}>{item.description}</Text>
+          </TouchableOpacity>
+        )}
+        ListHeaderComponent={renderHeader}
+        ListEmptyComponent={<Text style={{ textAlign: 'center', margin: 32, color: '#aaa' }}>여론조사가 없습니다.</Text>}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
+      />
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 32 },
   searchBar: { backgroundColor: '#f0f0f0', borderRadius: 8, padding: 14, margin: 16, alignItems: 'center' },
   searchText: { color: '#3897f0', fontWeight: 'bold', fontSize: 16 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', marginLeft: 16, marginBottom: 8 },
-  popularCard: { backgroundColor: '#eaf4ff', borderRadius: 12, padding: 16, marginRight: 12, width: 220 },
+  popularCard: { backgroundColor: '#eaf4ff', borderRadius: 12, padding: 16, paddingHorizontal: 20, marginRight: 12, width: 220 },
   popularTitle: { fontWeight: 'bold', fontSize: 15, marginBottom: 4 },
   popularDesc: { color: '#555', fontSize: 13 },
   categoryBar: { flexDirection: 'row', marginBottom: 8, marginLeft: 8 },
@@ -120,6 +122,7 @@ const styles = StyleSheet.create({
   pollItem: { padding: 16, borderBottomWidth: 1, borderColor: '#eee' },
   title: { fontWeight: 'bold', fontSize: 16 },
   desc: { color: '#666', marginTop: 4 },
+  trendingCard: { backgroundColor: '#f7faff', borderRadius: 12, padding: 16, paddingHorizontal: 20, marginRight: 12, width: 220 },
 });
 
 export default PollsScreen; 

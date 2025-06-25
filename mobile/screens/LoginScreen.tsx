@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { SafeAreaView, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authAPI } from '../api/auth';
 import { CommonActions } from '@react-navigation/native';
@@ -49,7 +49,7 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.logo}>여론조사</Text>
       <TextInput
         style={styles.input}
@@ -73,12 +73,12 @@ const LoginScreen = ({ navigation }) => {
       <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.link}>
         <Text style={styles.linkText}>계정이 없으신가요? 회원가입</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', paddingHorizontal: 32 },
   logo: { fontSize: 32, fontWeight: 'bold', marginBottom: 32 },
   input: { width: '80%', height: 48, borderColor: '#ccc', borderWidth: 1, borderRadius: 8, marginBottom: 16, paddingHorizontal: 12 },
   button: { width: '80%', height: 48, backgroundColor: '#3897f0', borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 8 },

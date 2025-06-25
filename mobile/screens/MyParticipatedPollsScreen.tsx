@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { SafeAreaView, View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { pollsAPI } from '../api/polls';
 
 const MyParticipatedPollsScreen = ({ navigation }) => {
@@ -19,7 +19,7 @@ const MyParticipatedPollsScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>내가 참여 중인 여론조사</Text>
       <FlatList
         data={polls}
@@ -33,9 +33,10 @@ const MyParticipatedPollsScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         )}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
         ListEmptyComponent={<Text style={{ textAlign: 'center', margin: 32, color: '#aaa' }}>참여한 여론조사가 없습니다.</Text>}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

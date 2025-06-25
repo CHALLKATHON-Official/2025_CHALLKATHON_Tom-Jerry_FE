@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+  SafeAreaView,
   View,
   Text,
   FlatList,
@@ -94,15 +95,15 @@ const HomeScreen = ({ navigation }) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#3897f0" />
         <Text style={styles.loadingText}>여론조사를 불러오는 중...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.header}>실시간 인기 여론조사</Text>
       
       {error ? (
@@ -117,7 +118,7 @@ const HomeScreen = ({ navigation }) => {
           data={polls}
           renderItem={renderPollItem}
           keyExtractor={(item) => item.poll_id.toString()}
-          contentContainerStyle={styles.listContainer}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
@@ -149,9 +150,10 @@ const HomeScreen = ({ navigation }) => {
               </View>
             </TouchableOpacity>
           )}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
