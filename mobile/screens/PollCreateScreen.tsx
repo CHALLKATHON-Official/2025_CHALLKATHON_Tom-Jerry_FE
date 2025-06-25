@@ -43,7 +43,10 @@ const PollCreateScreen = ({ navigation, route }) => {
         article: article || null,
       });
       Alert.alert('여론조사 개설 완료!', '', [
-        { text: '확인', onPress: () => navigation.navigate('Polls') }
+        { 
+          text: '확인', 
+          onPress: () => navigation.navigate('MainTabs', { screen: 'Polls' }) 
+        }
       ]);
     } catch (err) {
       Alert.alert('개설 실패', err.response?.data?.message || '서버 오류');

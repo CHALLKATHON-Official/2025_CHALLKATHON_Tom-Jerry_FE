@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView, TextInput } from 'react-native';
 import { pollsAPI } from '../api/polls';
+import { useFocusEffect } from '@react-navigation/native';
 
 const CATEGORIES = ['All', '정치', '경제', '사회', '생활/문화', 'IT/과학', '세계', '엔터', '스포츠'];
 
@@ -11,13 +12,24 @@ const PollsScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    pollsAPI.getPolls().then(res => {
+  const fetchPolls = async () => {
+    setLoading(true);
+    try {
+      const res = await pollsAPI.getPolls();
       setPolls(res.data.polls || []);
-      setPopularPolls((res.data.polls || []).slice(0, 5)); // 예시: 상위 5개 인기
+      setPopularPolls((res.data.polls || []).slice(0, 5));
+    } catch (e) {
+      // 에러 발생 시 처리
+    } finally {
       setLoading(false);
-    }).catch(() => setLoading(false));
-  }, []);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPolls();
+    }, [])
+  );
 
   const filteredPolls = polls.filter(poll =>
     (selectedCategory === 'All' || poll.category === selectedCategory) &&
