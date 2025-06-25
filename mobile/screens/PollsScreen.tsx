@@ -96,6 +96,10 @@ const PollsScreen = ({ navigation }) => {
           >
             <Text style={styles.title}>{item.title}</Text>
             <Text style={styles.desc}>{item.description}</Text>
+            {/* 뉴스 기반 여론조사라면 기사 제목 표시 */}
+            {item.article && item.article.title && (
+              <Text style={styles.articleTitle}>📰 {item.article.title}</Text>
+            )}
           </TouchableOpacity>
         )}
         ListHeaderComponent={renderHeader}
@@ -123,6 +127,7 @@ const styles = StyleSheet.create({
   title: { fontWeight: 'bold', fontSize: 16 },
   desc: { color: '#666', marginTop: 4 },
   trendingCard: { backgroundColor: '#f7faff', borderRadius: 12, padding: 16, paddingHorizontal: 20, marginRight: 12, width: 220 },
+  articleTitle: { color: '#888', fontSize: 13, marginTop: 4, fontStyle: 'italic' },
 });
 
 export default PollsScreen; 
