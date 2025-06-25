@@ -12,6 +12,8 @@ import PollsScreen from './screens/PollsScreen';
 import PollSearchScreen from './screens/PollSearchScreen';
 import PollCreateScreen from './screens/PollCreateScreen';
 import MyScreen from './screens/MyScreen';
+import MyParticipatedPollsScreen from './screens/MyParticipatedPollsScreen';
+import MyPollsScreen from './screens/MyPollsScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -20,6 +22,7 @@ const Tab = createBottomTabNavigator();
 function MainTabs() {
   return (
     <Tab.Navigator
+      id={undefined}
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
@@ -54,6 +57,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
+        id={undefined}
         initialRouteName="Login"
         screenOptions={{
           headerShown: false,
@@ -71,6 +75,8 @@ export default function App() {
         />
         <Stack.Screen name="PollSearch" component={PollSearchScreen} />
         <Stack.Screen name="PollCreate" component={PollCreateScreen} />
+        <Stack.Screen name="MyParticipatedPolls" component={MyParticipatedPollsScreen} />
+        <Stack.Screen name="MyPolls" component={MyPollsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
