@@ -2,33 +2,41 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView, View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Linking, Modal, Pressable, ScrollView } from 'react-native';
 import { fetchNaverNews } from '../api/news';
 
-const NEWS_CATEGORIES = ['All', '정치', '경제', '사회', '생활/문화', 'IT/과학', '세계', '엔터', '스포츠'];
+const NEWS_CATEGORIES = ['헤드라인', '정치', '경제', '사회', '생활/문화', 'IT/과학', '세계', '엔터', '스포츠'];
 
 const NewsHomeScreen = ({ navigation }) => {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedNews, setSelectedNews] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('헤드라인');
+
+  // 카테고리별 뉴스 fetch 함수
+  const fetchCategoryNews = async (category) => {
+    setLoading(true);
+    let query = category === '헤드라인' ? '주요뉴스' : category;
+    try {
+      const newsData = await fetchNaverNews(query, 20);
+      setNews(newsData);
+    } catch (err) {
+      alert('뉴스를 불러오지 못했습니다: ' + (err?.message || '네트워크 오류'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchNaverNews()
-      .then(setNews)
-      .catch(err => {
-        alert('뉴스를 불러오지 못했습니다: ' + (err?.message || '네트워크 오류'));
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    fetchCategoryNews(selectedCategory);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory]);
 
   if (loading) return <ActivityIndicator size="large" style={{ marginTop: 40 }} />;
 
   // 네이버 뉴스는 title/description에 HTML 태그가 포함되어 있으므로, 간단히 태그 제거
   const stripHtml = (html) => html.replace(/<[^>]+>/g, '');
 
-  // 카테고리별 필터링
-  const filteredNews = selectedCategory === 'All'
-    ? news
-    : news.filter(n => n.category === selectedCategory || (n.category == null && n.title && n.title.includes(selectedCategory)));
+  // 카테고리별 필터링 (API에서 이미 필터링된 결과를 받으므로 news 그대로 사용)
+  const filteredNews = news;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -54,6 +62,10 @@ const NewsHomeScreen = ({ navigation }) => {
               navigation.navigate('NewsDetail', { news: item });
             }}
           >
+            {/* 카테고리 표시 */}
+            {item.category && (
+              <Text style={styles.categoryLabel}>[{item.category}]</Text>
+            )}
             <Text style={styles.title}>{stripHtml(item.title)}</Text>
             <Text style={styles.desc} numberOfLines={2}>{stripHtml(item.description)}</Text>
           </TouchableOpacity>
@@ -94,6 +106,11 @@ const styles = StyleSheet.create({
   },
   categoryBtnSelected: {
     backgroundColor: '#3897f0',
+  },
+  categoryLabel: {
+    fontSize: 12,
+    color: '#3897f0',
+    marginBottom: 2,
   },
 });
 
