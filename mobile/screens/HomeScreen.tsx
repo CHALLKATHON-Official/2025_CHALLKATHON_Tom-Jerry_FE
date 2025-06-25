@@ -12,7 +12,7 @@ import {
   Image,
 } from 'react-native';
 import { pollsAPI } from '../api/polls';
-import { fetchRealtimeNews } from '../api/news';
+import { fetchNaverNews } from '../api/news';
 
 interface Poll {
   poll_id: number;
@@ -58,7 +58,7 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    fetchRealtimeNews()
+    fetchNaverNews()
       .then(setNews)
       .catch(() => alert('뉴스를 불러오지 못했습니다.'))
       .finally(() => setLoadingNews(false));
@@ -135,17 +135,14 @@ const HomeScreen = ({ navigation }) => {
       ) : (
         <FlatList
           data={news}
-          keyExtractor={item => item.url}
+          keyExtractor={item => item.link}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => { /* 웹뷰 등으로 기사 열기 */ }}>
               <View style={{ flexDirection: 'row', margin: 8 }}>
-                {item.urlToImage && (
-                  <Image source={{ uri: item.urlToImage }} style={{ width: 80, height: 80, borderRadius: 8 }} />
-                )}
                 <View style={{ flex: 1, marginLeft: 8 }}>
-                  <Text style={{ fontWeight: 'bold' }}>{item.title}</Text>
-                  <Text numberOfLines={2}>{item.description}</Text>
-                  <Text style={{ color: '#888', fontSize: 12 }}>{item.source?.name}</Text>
+                  <Text style={{ fontWeight: 'bold' }}>{item.title.replace(/<[^>]+>/g, '')}</Text>
+                  <Text numberOfLines={2}>{item.description.replace(/<[^>]+>/g, '')}</Text>
+                  <Text style={{ color: '#888', fontSize: 12 }}>{item.pubDate}</Text>
                 </View>
               </View>
             </TouchableOpacity>

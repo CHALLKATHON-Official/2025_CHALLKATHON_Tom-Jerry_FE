@@ -6,9 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="cff95816-e562-4519-bda8-9d5c359fef60" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mobile/api/news.ts" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/api/news.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mobile/screens/HomeScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/screens/HomeScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mobile/screens/NewsDetailScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/screens/NewsDetailScreen.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mobile/screens/NewsHomeScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/screens/NewsHomeScreen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mobile/screens/PollsScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/screens/PollsScreen.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,7 +37,7 @@
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "Merging main",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/sung-wonjun/2025_CHALLKATHON_Tom-Jerry_FE"
   }
