@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView, View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Linking, Modal, Pressable, ScrollView } from 'react-native';
 import { fetchNaverNews } from '../api/news';
 
+const NEWS_CATEGORIES = ['All', '정치', '경제', '사회', '생활/문화', 'IT/과학', '세계', '엔터', '스포츠'];
+
 const NewsHomeScreen = ({ navigation }) => {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedNews, setSelectedNews] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   useEffect(() => {
     fetchNaverNews()
@@ -22,17 +25,33 @@ const NewsHomeScreen = ({ navigation }) => {
   // 네이버 뉴스는 title/description에 HTML 태그가 포함되어 있으므로, 간단히 태그 제거
   const stripHtml = (html) => html.replace(/<[^>]+>/g, '');
 
+  // 카테고리별 필터링
+  const filteredNews = selectedCategory === 'All'
+    ? news
+    : news.filter(n => n.category === selectedCategory || (n.category == null && n.title && n.title.includes(selectedCategory)));
+
   return (
     <SafeAreaView style={styles.container}>
+      {/* 카테고리 버튼 */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryBar}>
+        {NEWS_CATEGORIES.map(cat => (
+          <TouchableOpacity
+            key={cat}
+            style={[styles.categoryBtn, selectedCategory === cat && styles.categoryBtnSelected]}
+            onPress={() => setSelectedCategory(cat)}
+          >
+            <Text style={{ color: selectedCategory === cat ? '#fff' : '#3897f0', fontWeight: 'bold' }}>{cat}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
       <FlatList
-        data={news}
+        data={filteredNews}
         keyExtractor={item => item.link}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.item}
             onPress={() => {
-              setSelectedNews(item);
-              setModalVisible(true);
+              navigation.navigate('NewsDetail', { news: item });
             }}
           >
             <Text style={styles.title}>{stripHtml(item.title)}</Text>
@@ -42,30 +61,6 @@ const NewsHomeScreen = ({ navigation }) => {
         ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 40 }}>뉴스가 없습니다.</Text>}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
       />
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <ScrollView>
-              <Text style={styles.modalTitle}>{selectedNews ? stripHtml(selectedNews.title) : ''}</Text>
-              <Text style={styles.modalDesc}>{selectedNews ? stripHtml(selectedNews.description) : ''}</Text>
-              <Pressable
-                style={styles.urlButton}
-                onPress={() => selectedNews && Linking.openURL(selectedNews.link)}
-              >
-                <Text style={styles.urlButtonText}>원문 보기</Text>
-              </Pressable>
-              <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                <Text style={styles.closeButtonText}>닫기</Text>
-              </Pressable>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 };
@@ -83,6 +78,23 @@ const styles = StyleSheet.create({
   urlButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   closeButton: { alignItems: 'center', padding: 8 },
   closeButtonText: { color: '#3897f0', fontSize: 15 },
+  categoryBar: {
+    flexDirection: 'row',
+    marginBottom: 12,
+    marginTop: 8,
+  },
+  categoryBtn: {
+    borderWidth: 1,
+    borderColor: '#3897f0',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    marginRight: 8,
+    backgroundColor: '#fff',
+  },
+  categoryBtnSelected: {
+    backgroundColor: '#3897f0',
+  },
 });
 
 export default NewsHomeScreen; 

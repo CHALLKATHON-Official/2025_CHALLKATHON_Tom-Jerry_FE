@@ -29,6 +29,9 @@ async function summarizeText(text, maxLen = 255) {
   }
 }
 
+// HTML 태그 제거 함수
+const stripHtml = (html) => html ? html.replace(/<[^>]+>/g, '') : '';
+
 const NewsDetailScreen = ({ route, navigation }) => {
   const { news } = route.params;
   const [summary, setSummary] = useState(news.summary || '');
@@ -50,12 +53,12 @@ const NewsDetailScreen = ({ route, navigation }) => {
     <View style={{ flex: 1, position: 'relative' }}>
       <ScrollView contentContainerStyle={styles.container}>
         {/* 뉴스 제목 (HTML 태그 제거) */}
-        <Text style={styles.title}>{news.title.replace(/<[^>]+>/g, '')}</Text>
+        <Text style={styles.title}>{stripHtml(news.title)}</Text>
         {/* 요약 로딩 중이면 인디케이터, 아니면 요약문 */}
         {loading ? (
           <ActivityIndicator size="small" color="#3897f0" style={{ marginVertical: 20 }} />
         ) : (
-          <Text style={styles.content}>{summary}</Text>
+          <Text style={styles.content}>{stripHtml(summary)}</Text>
         )}
         {/* 발행일 */}
         {news.pubDate ? <Text style={styles.date}>{news.pubDate}</Text> : null}
@@ -80,7 +83,20 @@ const styles = StyleSheet.create({
   title: { fontSize: 20, fontWeight: 'bold', marginBottom: 12 },
   content: { fontSize: 16, marginBottom: 20 },
   date: { color: '#888', fontSize: 13, marginBottom: 12 },
-  link: { color: '#3897f0', textDecorationLine: 'underline', fontSize: 15 },
+  link: { color: '#3897f0', textDecorationLine: 'underline', fontSize: 15, marginBottom: 24 },
+  createPollBtn: {
+    backgroundColor: '#3897f0',
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  createPollBtnText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
   fab: {
     position: 'absolute',
     right: 24,

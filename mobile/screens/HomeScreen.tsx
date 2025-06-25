@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { pollsAPI } from '../api/polls';
 import { fetchNaverNews } from '../api/news';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Poll {
   poll_id: number;
@@ -25,6 +26,7 @@ interface Poll {
     option_text: string;
     response_count: number;
   }>;
+  participant_count?: number;
 }
 
 const HomeScreen = ({ navigation }) => {
@@ -57,6 +59,12 @@ const HomeScreen = ({ navigation }) => {
     fetchPolls().finally(() => setLoading(false));
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchPolls();
+    }, [])
+  );
+
   useEffect(() => {
     fetchNaverNews()
       .then(setNews)
@@ -71,7 +79,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderPollItem = ({ item }: { item: Poll }) => {
-    const totalVotes = item.Options?.reduce((sum, option) => sum + Number(option.response_count || 0), 0) || 0;
+    const totalVotes = typeof item.participant_count === 'number' ? item.participant_count : (item.Options?.reduce((sum, option) => sum + Number(option.response_count || 0), 0) || 0);
 
     return (
       <TouchableOpacity
