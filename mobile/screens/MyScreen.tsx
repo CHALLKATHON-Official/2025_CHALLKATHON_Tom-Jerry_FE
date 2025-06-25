@@ -1,7 +1,31 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 
 const MyScreen = ({ navigation }) => {
+  // 프로필 이미지 상태
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  // 프로필 이미지 선택 함수
+  const pickImage = async () => {
+    // 앨범 접근 권한 요청
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert('권한 필요', '앨범 접근 권한이 필요합니다.');
+      return;
+    }
+    // 이미지 선택
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setProfileImage(result.assets[0].uri); // 이미지 경로 저장
+    }
+  };
+
   // TODO: 실제 사용자 정보 연동 시 아래 값 대체
   const nickname = '닉네임';
   const phone = '010-0000-0000';
@@ -10,7 +34,15 @@ const MyScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* 상단 프로필 정보 */}
       <View style={styles.profileBox}>
-        <View style={styles.avatar} />
+        <TouchableOpacity onPress={pickImage}>
+          {profileImage ? (
+            <Image source={{ uri: profileImage }} style={styles.avatar} />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <Text style={{ color: '#aaa', fontSize: 24 }}>+</Text>
+            </View>
+          )}
+        </TouchableOpacity>
         <View>
           <Text style={styles.nickname}>{nickname}</Text>
           <Text style={styles.phone}>{phone}</Text>
@@ -33,6 +65,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', padding: 24 },
   profileBox: { flexDirection: 'row', alignItems: 'center', marginBottom: 32 },
   avatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#eaf4ff', marginRight: 16 },
+  avatarPlaceholder: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#eaf4ff', marginRight: 16, justifyContent: 'center', alignItems: 'center' },
   nickname: { fontSize: 20, fontWeight: 'bold', marginBottom: 4 },
   phone: { color: '#888', fontSize: 14 },
   menuCard: { backgroundColor: '#f7faff', borderRadius: 12, padding: 20, marginBottom: 20, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
