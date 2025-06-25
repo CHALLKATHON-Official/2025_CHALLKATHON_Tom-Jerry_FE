@@ -20,7 +20,7 @@ const MyPollsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>내가 개발한 여론조사</Text>
+      <Text style={styles.title}>내가 개설한 여론조사</Text>
       <FlatList
         data={polls}
         keyExtractor={item => item.poll_id.toString()}
@@ -33,7 +33,7 @@ const MyPollsScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         )}
-        ListEmptyComponent={<Text style={{ textAlign: 'center', margin: 32, color: '#aaa' }}>내가 개발한 여론조사가 없습니다.</Text>}
+        ListEmptyComponent={<Text style={{ textAlign: 'center', margin: 32, color: '#aaa' }}>내가 개설한 여론조사가 없습니다.</Text>}
       />
     </View>
   );
