@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, ActivityIndicator, Image } from 'react-native';
 import { pollsAPI } from '../api/polls';
 
 const PollDetailScreen = ({ route }) => {
@@ -134,13 +134,13 @@ const PollDetailScreen = ({ route }) => {
         keyExtractor={item => (item.id || item.commentId).toString()}
         renderItem={({ item }) => (
           <View style={styles.commentWrap}>
-            {/* 작성자 닉네임 출력 */}
+            {/* 작성자 닉네임(별명)만 출력 */}
             <Text style={{ fontWeight: 'bold', marginBottom: 2 }}>
-              {item.author || item.nickname || '익명'}
+              {item.author || '익명'}
             </Text>
             {/* 댓글 내용 출력 */}
             <Text style={styles.commentText}>
-              {item.text || item.content}
+              {item.content || item.text}
             </Text>
             <TouchableOpacity onPress={() => setReplyTo(item.id || item.commentId)}>
               <Text style={styles.replyBtn}>답글</Text>
