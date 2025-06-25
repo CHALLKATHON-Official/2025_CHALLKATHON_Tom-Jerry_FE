@@ -59,7 +59,8 @@ const PollDetailScreen = ({ route }) => {
       const res = await pollsAPI.getPoll(pollId.toString());
       setComments(res.data.comments || []);
     } catch (e) {
-      alert('댓글 등록 실패');
+      // 서버에서 받은 에러 메시지를 함께 출력 (디버깅에 도움)
+      alert('댓글 등록 실패: ' + (e.response?.data?.message || e.message || ''));
     }
   };
 
@@ -129,12 +130,19 @@ const PollDetailScreen = ({ route }) => {
       {/* 댓글/대댓글 */}
       <Text style={styles.sectionTitle}>토론</Text>
       <FlatList
-        data={comments}
-        keyExtractor={item => item.id.toString()}
+        data={comments || []}
+        keyExtractor={item => (item.id || item.commentId).toString()}
         renderItem={({ item }) => (
           <View style={styles.commentWrap}>
-            <Text style={styles.commentText}>{item.text}</Text>
-            <TouchableOpacity onPress={() => setReplyTo(item.id)}>
+            {/* 작성자 닉네임 출력 */}
+            <Text style={{ fontWeight: 'bold', marginBottom: 2 }}>
+              {item.author || item.nickname || '익명'}
+            </Text>
+            {/* 댓글 내용 출력 */}
+            <Text style={styles.commentText}>
+              {item.text || item.content}
+            </Text>
+            <TouchableOpacity onPress={() => setReplyTo(item.id || item.commentId)}>
               <Text style={styles.replyBtn}>답글</Text>
             </TouchableOpacity>
             {/* 대댓글 */}
@@ -144,7 +152,7 @@ const PollDetailScreen = ({ route }) => {
               </View>
             ))}
             {/* 대댓글 입력 */}
-            {replyTo === item.id && (
+            {(replyTo === (item.id || item.commentId)) && (
               <View style={styles.replyInputWrap}>
                 <TextInput
                   style={styles.replyInput}
@@ -152,7 +160,7 @@ const PollDetailScreen = ({ route }) => {
                   onChangeText={setReplyText}
                   placeholder="답글 입력"
                 />
-                <TouchableOpacity onPress={() => handleReply(item.id)}>
+                <TouchableOpacity onPress={() => handleReply(item.id || item.commentId)}>
                   <Text style={styles.replySendBtn}>등록</Text>
                 </TouchableOpacity>
               </View>
