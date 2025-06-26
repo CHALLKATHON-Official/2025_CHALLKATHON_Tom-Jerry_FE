@@ -3,6 +3,7 @@ import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, Image, Alert } 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { pollsAPI } from '../api/polls';
+import { useFocusEffect } from '@react-navigation/native';
 
 const MyScreen = ({ navigation }) => {
   // 별명 상태 (초기값: '닉네임')
@@ -45,14 +46,16 @@ const MyScreen = ({ navigation }) => {
     }
   };
 
-  // 여론조사 수 불러오기
-  useEffect(() => {
-    pollsAPI.getPolls().then(res => {
-      const polls = res.data.polls || [];
-      setParticipatedCount(polls.filter(p => p.isParticipated).length);
-      setCreatedCount(polls.filter(p => p.isMine).length);
-    });
-  }, []);
+  // 여론조사 수 불러오기: 화면이 포커스될 때마다 갱신
+  useFocusEffect(
+    React.useCallback(() => {
+      pollsAPI.getPolls().then(res => {
+        const polls = res.data.polls || [];
+        setParticipatedCount(polls.filter(p => p.isParticipated).length);
+        setCreatedCount(polls.filter(p => p.isMine).length);
+      });
+    }, [])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
