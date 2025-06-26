@@ -70,5 +70,10 @@ export const pollsAPI = {
   // 인구통계 집계 API 호출
   getDemographics: (pollId: string) => {
     return apiClient.get(`/polls/${pollId}/demographics`);
+  },
+
+  // AI 분석 결과 조회
+  getAIAssessment: (pollId: string) => {
+    return apiClient.get(`/polls/${pollId}/ai-analysis-preview`);
   }
 }; 
