@@ -1,4 +1,9 @@
 {
   "name": "Polllog",
-  "displayName": "Polllog"
+  "displayName": "Polllog",
+  "expo": {
+    "android": {
+      "package": "com.sungwonjun.pollapp"
+    }
+  }
 } 
