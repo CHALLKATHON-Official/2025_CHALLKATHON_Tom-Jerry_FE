@@ -16,6 +16,7 @@ import MyParticipatedPollsScreen from './screens/MyParticipatedPollsScreen';
 import MyPollsScreen from './screens/MyPollsScreen';
 import NewsHomeScreen from './screens/NewsHomeScreen';
 import NewsDetailScreen from './screens/NewsDetailScreen';
+import PollResultScreen from './screens/PollResultScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -80,6 +81,7 @@ export default function App() {
         <Stack.Screen name="MyParticipatedPolls" component={MyParticipatedPollsScreen} />
         <Stack.Screen name="MyPolls" component={MyPollsScreen} />
         <Stack.Screen name="NewsDetail" component={NewsDetailScreen} />
+        <Stack.Screen name="PollResult" component={PollResultScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

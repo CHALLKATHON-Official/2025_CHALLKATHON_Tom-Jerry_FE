@@ -50,5 +50,25 @@ export const pollsAPI = {
   // 댓글 목록 조회
   getComments: (pollId: string) => {
     return apiClient.get(`/polls/${pollId}/comments`);
+  },
+
+  // 시/도별 투표자 수 집계 API 호출
+  getRegionStats: (pollId: string) => {
+    return apiClient.get(`/polls/${pollId}/region-stats`);
+  },
+
+  // 성별 비율 집계 API 호출
+  getGenderStats: (pollId: string) => {
+    return apiClient.get(`/polls/${pollId}/results?groupBy=gender`);
+  },
+
+  // 항목별 그룹 통계(성별, 나이대, 직업 등) API 호출
+  getOptionStatsByGroup: (pollId: string, groupBy: string) => {
+    return apiClient.get(`/polls/${pollId}/results?groupBy=${groupBy}`);
+  },
+
+  // 인구통계 집계 API 호출
+  getDemographics: (pollId: string) => {
+    return apiClient.get(`/polls/${pollId}/demographics`);
   }
 }; 
