@@ -84,24 +84,50 @@ const PollsScreen = ({ navigation }) => {
     </>
   );
 
+  // 여론조사 항목 렌더링: 카테고리 뱃지를 오른쪽 상단에 배치, 각 영역 분리
+  const renderPollItem = ({ item, index }) => {
+    const totalVotes = typeof item.participant_count === 'number' ? item.participant_count : (item.Options?.reduce((sum, option) => sum + Number(option.response_count || 0), 0) || 0);
+    const bgColor = index % 2 === 0 ? '#eaf4ff' : '#fff';
+    return (
+      <TouchableOpacity
+        style={[styles.pollItem, { backgroundColor: bgColor, borderRadius: 12, marginBottom: 12 }]}
+        onPress={() => navigation.navigate('PollDetail', { pollId: item.poll_id })}
+      >
+        {/* 상단: 제목(좌), 카테고리(우) */}
+        <View style={styles.pollHeaderRow}>
+          <Text
+            style={[styles.title, { flex: 1, marginRight: 8 }]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {item.title}
+          </Text>
+          <View style={[styles.categoryBadge, { flexShrink: 0 }]}>
+            <Text style={styles.pollCategory}>{item.category}</Text>
+          </View>
+        </View>
+        {/* 설명 */}
+        <Text style={styles.desc}>{item.description}</Text>
+        {/* 오른쪽 하단에 총 참여수 */}
+        <View style={styles.pollFooter}>
+          <View style={{ flex: 1 }} />
+          <Text style={styles.pollVotes}>총 참여수: {totalVotes}명</Text>
+        </View>
+        {/* 뉴스 기반 여론조사라면 기사 제목 표시 */}
+        {item.article && item.article.title && (
+          <Text style={styles.articleTitle}>📰 {item.article.title}</Text>
+        )}
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
         data={filteredPolls}
         keyExtractor={item => item.poll_id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.pollItem}
-            onPress={() => navigation.navigate('PollDetail', { pollId: item.poll_id })}
-          >
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.desc}>{item.description}</Text>
-            {/* 뉴스 기반 여론조사라면 기사 제목 표시 */}
-            {item.article && item.article.title && (
-              <Text style={styles.articleTitle}>📰 {item.article.title}</Text>
-            )}
-          </TouchableOpacity>
-        )}
+        renderItem={renderPollItem}
+        extraData={filteredPolls}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={<Text style={{ textAlign: 'center', margin: 32, color: '#aaa' }}>여론조사가 없습니다.</Text>}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
@@ -123,11 +149,47 @@ const styles = StyleSheet.create({
   categoryBtnSelected: { backgroundColor: '#3897f0', borderColor: '#3897f0' },
   createPollBox: { backgroundColor: '#f7faff', borderRadius: 10, padding: 18, margin: 16, alignItems: 'center', borderWidth: 1, borderColor: '#3897f0' },
   createPollText: { color: '#3897f0', fontWeight: 'bold', fontSize: 16 },
-  pollItem: { padding: 16, borderBottomWidth: 1, borderColor: '#eee' },
+  pollItem: { 
+    padding: 16, 
+    borderBottomWidth: 0, // 블럭형으로 변경
+  },
+  pollHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+    minHeight: 24,
+  },
   title: { fontWeight: 'bold', fontSize: 16 },
   desc: { color: '#666', marginTop: 4 },
   trendingCard: { backgroundColor: '#f7faff', borderRadius: 12, padding: 16, paddingHorizontal: 20, marginRight: 12, width: 220 },
   articleTitle: { color: '#888', fontSize: 13, marginTop: 4, fontStyle: 'italic' },
+  categoryBadge: {
+    backgroundColor: '#dbeafe',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    marginLeft: 8,
+    marginBottom: 0,
+  },
+  pollCategory: {
+    fontSize: 13,
+    color: '#2563eb',
+    fontWeight: 'bold',
+    marginBottom: 0,
+  },
+  pollFooter: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  pollVotes: {
+    fontSize: 12,
+    color: '#2563eb',
+    fontWeight: 'bold',
+    textAlign: 'right',
+  },
 });
 
 export default PollsScreen; 

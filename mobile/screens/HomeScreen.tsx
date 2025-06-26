@@ -78,16 +78,16 @@ const HomeScreen = ({ navigation }) => {
     setRefreshing(false);
   };
 
-  const renderPollItem = ({ item }: { item: Poll }) => {
+  const renderPollItem = ({ item, index }: { item: Poll, index: number }) => {
     const totalVotes = typeof item.participant_count === 'number' ? item.participant_count : (item.Options?.reduce((sum, option) => sum + Number(option.response_count || 0), 0) || 0);
-
+    const bgColor = index % 2 === 0 ? '#eaf4ff' : '#fff';
     return (
       <TouchableOpacity
-        style={styles.pollCard}
+        style={[styles.pollCard, { backgroundColor: bgColor }]}
         onPress={() => navigation.navigate('PollDetail', { pollId: item.poll_id })}
       >
         <Text style={styles.pollTitle}>{item.title}</Text>
-        <Text style={styles.pollCategory}>{item.category}</Text>
+        <View style={styles.categoryBadge}><Text style={styles.pollCategory}>{item.category}</Text></View>
         <Text style={styles.pollDescription} numberOfLines={2}>
           {item.description}
         </Text>
@@ -95,7 +95,7 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.pollDate}>
             마감: {item.expires_at ? item.expires_at.split('T')[0] : '미정'}
           </Text>
-          <Text style={styles.pollVotes}>참여수: {totalVotes}</Text>
+          <Text style={styles.pollVotes}>총 참여수: {totalVotes}명</Text>
         </View>
       </TouchableOpacity>
     );
@@ -126,6 +126,7 @@ const HomeScreen = ({ navigation }) => {
           data={polls}
           renderItem={renderPollItem}
           keyExtractor={(item) => item.poll_id.toString()}
+          extraData={polls}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -213,7 +214,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   pollCard: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -226,6 +226,15 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  categoryBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#dbeafe',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    marginBottom: 8,
+    marginTop: -4,
+  },
   pollTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -233,10 +242,10 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   pollCategory: {
-    fontSize: 14,
-    color: '#3897f0',
-    fontWeight: '600',
-    marginBottom: 8,
+    fontSize: 13,
+    color: '#2563eb',
+    fontWeight: 'bold',
+    marginBottom: 0,
   },
   pollDescription: {
     fontSize: 14,
@@ -248,6 +257,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 8,
   },
   pollDate: {
     fontSize: 12,
@@ -255,8 +265,9 @@ const styles = StyleSheet.create({
   },
   pollVotes: {
     fontSize: 12,
-    color: '#3897f0',
-    fontWeight: '500',
+    color: '#2563eb',
+    fontWeight: 'bold',
+    textAlign: 'right',
   },
   emptyContainer: {
     flex: 1,
