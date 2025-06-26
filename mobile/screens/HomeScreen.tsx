@@ -12,7 +12,6 @@ import {
   Image,
 } from 'react-native';
 import { pollsAPI } from '../api/polls';
-import { fetchNaverNews } from '../api/news';
 import { useFocusEffect } from '@react-navigation/native';
 
 interface Poll {
@@ -34,8 +33,6 @@ const HomeScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
-  const [news, setNews] = useState([]);
-  const [loadingNews, setLoadingNews] = useState(true);
 
   const fetchPolls = async () => {
     try {
@@ -64,13 +61,6 @@ const HomeScreen = ({ navigation }) => {
       fetchPolls();
     }, [])
   );
-
-  useEffect(() => {
-    fetchNaverNews()
-      .then(setNews)
-      .catch(() => alert('뉴스를 불러오지 못했습니다.'))
-      .finally(() => setLoadingNews(false));
-  }, []);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -136,27 +126,6 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.emptyText}>진행 중인 여론조사가 없습니다.</Text>
             </View>
           }
-        />
-      )}
-      <Text style={{ fontSize: 20, fontWeight: 'bold', margin: 12 }}>실시간 뉴스</Text>
-      {loadingNews ? (
-        <ActivityIndicator size="large" />
-      ) : (
-        <FlatList
-          data={news}
-          keyExtractor={item => item.link}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => { /* 웹뷰 등으로 기사 열기 */ }}>
-              <View style={{ flexDirection: 'row', margin: 8 }}>
-                <View style={{ flex: 1, marginLeft: 8 }}>
-                  <Text style={{ fontWeight: 'bold' }}>{item.title.replace(/<[^>]+>/g, '')}</Text>
-                  <Text numberOfLines={2}>{item.description.replace(/<[^>]+>/g, '')}</Text>
-                  <Text style={{ color: '#888', fontSize: 12 }}>{item.pubDate}</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          )}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
         />
       )}
     </SafeAreaView>
